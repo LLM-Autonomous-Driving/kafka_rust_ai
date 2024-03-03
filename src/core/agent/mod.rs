@@ -7,13 +7,14 @@ use crate::common::utils::files::{
 use crate::core::agent::ais::asst::{AsstId, ThreadId};
 use crate::core::agent::ais::{asst, OaClient};
 use crate::domain::common::error::Result;
-use std::fs;
-
 use crate::common::utils::cli::ico_check;
 use crate::core::agent::config::Config;
+
 use derive_more::{Deref, From};
 use serde::{Deserialize, Serialize};
+use std::fs;
 use std::path::{Path, PathBuf};
+use uuid::Uuid;
 
 const AGENT_TOML: &str = "agent.toml";
 
@@ -23,11 +24,20 @@ pub struct Agent {
 	oac: OaClient,
 	asst_id: AsstId,
 	config: Config,
+	conv: Conv,
 }
 
 #[derive(Debug, From, Deref, Deserialize, Serialize)]
 pub struct Conv {
 	thread_id: ThreadId,
+}
+
+impl Conv {
+	pub fn temp() -> Self {
+		Conv {
+			thread_id: Uuid::new_v4().to_string().into(),
+		}
+	}
 }
 
 // Public Functions
@@ -44,7 +54,7 @@ impl Agent {
 		let dir = dir.as_ref();
 		let config: Config = load_from_toml(dir.join(AGENT_TOML))?;
 
-		let oac = crate::core::agent::ais::new_oa_client()?;
+		let oac = ais::new_oa_client()?;
 		let asst_id =
 			asst::load_or_create(&oac, (&config).into(), recreate_asst).await?;
 
@@ -53,6 +63,14 @@ impl Agent {
 			oac,
 			asst_id,
 			config,
+			conv: Conv::temp(),
+		};
+
+		let conv = agent.load_or_create_conv(recreate_asst).await?;
+		
+		let agent = Agent {
+			conv,
+			..agent
 		};
 
 		agent.upload_instructions().await?;
@@ -72,7 +90,29 @@ impl Agent {
 		}
 	}
 
-	pub async fn load_or_create_conv(&self, recreate: bool) -> Result<Conv> {
+	pub async fn chat(&self,  msg: &str) -> Result<String> {
+		let res =
+			asst::run_thread_msg(&self.oac, &self.asst_id, &self.conv.thread_id, msg)
+				.await?;
+		Ok(res)
+	}
+}
+
+//Private Functions
+impl Agent {
+	fn data_dir(&self) -> Result<PathBuf> {
+		let data_dir = self.dir.join(".agent");
+		ensure_dir(&data_dir)?;
+		Ok(data_dir)
+	}
+
+	fn data_files_dir(&self) -> Result<PathBuf> {
+		let dir = self.data_dir()?.join("files");
+		ensure_dir(&dir)?;
+		Ok(dir)
+	}
+
+	async fn load_or_create_conv(&self, recreate: bool) -> Result<Conv> {
 		let conv_file = self.data_dir()?.join("conv.json");
 
 		if recreate && conv_file.exists() {
@@ -94,28 +134,5 @@ impl Agent {
 		};
 
 		Ok(conv)
-	}
-
-	pub async fn chat(&self, conv: &Conv, msg: &str) -> Result<String> {
-		let res =
-			asst::run_thread_msg(&self.oac, &self.asst_id, &conv.thread_id, msg)
-				.await?;
-		Ok(res)
-	}
-}
-
-//Private Functions
-
-impl Agent {
-	fn data_dir(&self) -> Result<PathBuf> {
-		let data_dir = self.dir.join(".agent");
-		ensure_dir(&data_dir)?;
-		Ok(data_dir)
-	}
-
-	fn data_files_dir(&self) -> Result<PathBuf> {
-		let dir = self.data_dir()?.join("files");
-		ensure_dir(&dir)?;
-		Ok(dir)
 	}
 }

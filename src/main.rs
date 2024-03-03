@@ -1,3 +1,4 @@
+use crate::core::agent;
 use crate::core::consumer::kafka_consumer::KafkaConsumer;
 use crate::core::kafka_admin::KafkaAdmin;
 use crate::core::publisher::event_publisher::EventPublisher;
@@ -15,10 +16,11 @@ mod gateway;
 
 #[tokio::main]
 async fn main() {
+	const DEFAULT_DIR: &str = "agent";
+	
 	let hosts = vec!["localhost:29092".to_owned()];
 
 	let event: Event = Event::new(EventData::Default);
-
 	let topic = event.get_topic();
 
 	KafkaAdmin::create_topic(&hosts, &topic)
@@ -28,12 +30,16 @@ async fn main() {
 	let mut producer = KafkaPublisher::new(&hosts);
 	let consumer = KafkaConsumer::new(&hosts, &[&topic]).await;
 
+	let mut agent = agent::Agent::init_from_dir(DEFAULT_DIR, false).await.expect("Failed to initialise agent..");
+
+
+
 	producer
 		.publish(&event, &"test".to_string())
 		.await
 		.expect("Failed to publish event..");
 
-	let event_handler = EventHandlerLive::new(producer);
+	let event_handler = EventHandlerLive::new(producer,agent);
 
 	let mut kafka_gateway = KafkaGateway::new(consumer, event_handler);
 
