@@ -55,11 +55,15 @@ impl KafkaConsumer {
 			.expect("Failed to create consumer");
 
 		consumer
-			.subscribe(&[&topics
-				.iter()
-				.map(|t| t.to_string())
-				.collect::<Vec<String>>()
-				.join(",")])
+			.subscribe(
+				&topics
+					.iter()
+					.map(|t| t.to_string())
+					.collect::<Vec<String>>()
+					.iter()
+					.map(AsRef::as_ref)
+					.collect::<Vec<&str>>(),
+			)
 			.expect("Failed to subscribe to topic");
 
 		KafkaConsumer { consumer }

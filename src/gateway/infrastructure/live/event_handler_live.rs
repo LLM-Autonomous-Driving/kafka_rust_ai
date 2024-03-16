@@ -23,11 +23,11 @@ impl EventHandler for EventHandlerLive<KafkaPublisher> {
 		sleep(Duration::from_secs(2)).await;
 
 		let key = Uuid::new_v4().to_string();
-		let msg = prompt("Enter message: ").expect("Failed to get message");
-
-		let res = self.agent.chat( &msg).await?;
-		let res = wrap(&res, 80).join("\n");
-		println!("{} {}", ico_res(), text_res(res));
+		// let msg = prompt("Enter message: ").expect("Failed to get message");
+		// 
+		// let res = self.agent.chat( &msg).await?;
+		// let res = wrap(&res, 80).join("\n");
+		// println!("{} {}", ico_res(), text_res(res));
 
 		self.publisher
 			.publish(event, &key)

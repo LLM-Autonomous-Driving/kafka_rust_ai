@@ -4,9 +4,12 @@ use serde_json::json;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Display)]
 pub enum EventTopics {
-	DefaultTopic,
-	HealthTestTopic,
-	ExternalTopic,
+	Default,
+	HealthTest,
+	External,
+	CameraImageRawData,
+	LidarRangeImageRawData,
+	LidarPointCloudRawData,
 }
 
 impl EventTopics {
