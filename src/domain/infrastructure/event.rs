@@ -30,20 +30,20 @@ impl Event {
 				topic: EventTopics::Default,
 				data: EventData::Default,
 			},
-			EventData::CameraImageRawData => Event {
+			EventData::CameraImageRawData(data) => Event {
 				channel: Channel::CameraImageRawData,
 				topic: EventTopics::CameraImageRawData,
-				data: EventData::CameraImageRawData,
+				data: EventData::CameraImageRawData(data),
 			},
-			EventData::LidarRangeImageRawData => Event {
+			EventData::LidarRangeImageRawData(data) => Event {
 				channel: Channel::LidarRangeImageRawData,
 				topic: EventTopics::LidarRangeImageRawData,
-				data: EventData::LidarRangeImageRawData,
+				data: EventData::LidarRangeImageRawData(data),
 			},
-			EventData::LidarPointCloudRawData => Event {
+			EventData::LidarPointCloudRawData(data) => Event {
 				channel: Channel::LidarPointCloudRawData,
 				topic: EventTopics::LidarPointCloudRawData,
-				data: EventData::LidarPointCloudRawData,
+				data: EventData::LidarPointCloudRawData(data),
 			},
 		}
 	}

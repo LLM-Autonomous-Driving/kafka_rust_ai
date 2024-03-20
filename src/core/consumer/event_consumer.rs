@@ -5,7 +5,7 @@ use rdkafka::message::OwnedMessage;
 pub trait EventConsumer {
 	async fn get_event(&self) -> Result<(Event, OwnedMessage)>;
 	async fn commit_consumed(
-		&mut self,
+		&self,
 		topic: &str,
 		message: &OwnedMessage,
 	) -> Result<()>;

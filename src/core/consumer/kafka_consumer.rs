@@ -28,7 +28,7 @@ impl EventConsumer for KafkaConsumer {
 	}
 
 	async fn commit_consumed(
-		&mut self,
+		&self,
 		topic: &str,
 		message: &OwnedMessage,
 	) -> Result<()> {

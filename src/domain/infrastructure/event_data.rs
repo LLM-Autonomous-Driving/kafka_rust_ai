@@ -6,9 +6,9 @@ pub enum EventData {
 	HealthTest(HealthTestEventData),
 	FakeTest,
 	Default,
-	CameraImageRawData,
-	LidarRangeImageRawData,
-	LidarPointCloudRawData,
+	CameraImageRawData(String),
+	LidarRangeImageRawData(String),
+	LidarPointCloudRawData(String),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Display)]
