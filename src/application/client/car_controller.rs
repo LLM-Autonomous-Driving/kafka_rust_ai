@@ -47,9 +47,10 @@ impl CarController {
 	}
 
 	pub async fn set_speed(&self, speed: f32) -> Result<()> {
-		get(format!("{}/setSpeed/{}", self.url, speed))
+		let response = get(format!("{}/setSpeed/{}", self.url, speed))
 			.await
 			.unwrap();
+		println!("Response: {:?}", response.text().await.unwrap());
 		Ok(())
 	}
 

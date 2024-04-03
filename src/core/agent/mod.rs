@@ -1,22 +1,20 @@
 pub mod ais;
 mod config;
 
+use crate::common::utils::cli::ico_check;
 use crate::common::utils::files::{
 	ensure_dir, load_from_json, load_from_toml, read_to_string, save_to_json,
 };
 use crate::core::agent::ais::asst::{AsstId, ThreadId};
 use crate::core::agent::ais::{asst, OaClient};
-use crate::domain::common::error::Result;
-use crate::common::utils::cli::ico_check;
 use crate::core::agent::config::Config;
+use crate::domain::common::error::Result;
 
 use derive_more::{Deref, From};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::{Path, PathBuf};
 use uuid::Uuid;
-
-const AGENT_TOML: &str = "agent.toml";
 
 #[derive(Debug)]
 pub struct Agent {
@@ -50,9 +48,10 @@ impl Agent {
 	pub async fn init_from_dir(
 		dir: impl AsRef<Path>,
 		recreate_asst: bool,
+		toml_file_name: &str,
 	) -> Result<Self> {
 		let dir = dir.as_ref();
-		let config: Config = load_from_toml(dir.join(AGENT_TOML))?;
+		let config: Config = load_from_toml(dir.join(toml_file_name))?;
 
 		let oac = ais::new_oa_client()?;
 		let asst_id =
@@ -67,11 +66,8 @@ impl Agent {
 		};
 
 		let conv = agent.load_or_create_conv(recreate_asst).await?;
-		
-		let agent = Agent {
-			conv,
-			..agent
-		};
+
+		let agent = Agent { conv, ..agent };
 
 		agent.upload_instructions().await?;
 
@@ -90,10 +86,14 @@ impl Agent {
 		}
 	}
 
-	pub async fn chat(&self,  msg: &str) -> Result<String> {
-		let res =
-			asst::run_thread_msg(&self.oac, &self.asst_id, &self.conv.thread_id, msg)
-				.await?;
+	pub async fn chat(&self, msg: &str) -> Result<String> {
+		let res = asst::run_thread_msg(
+			&self.oac,
+			&self.asst_id,
+			&self.conv.thread_id,
+			msg,
+		)
+		.await?;
 		Ok(res)
 	}
 }

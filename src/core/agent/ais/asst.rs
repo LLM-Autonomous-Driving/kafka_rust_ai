@@ -39,6 +39,7 @@ async fn create(oac: &OaClient, config: CreateConfig) -> Result<AsstId> {
 			model: config.model,
 			name: Some(config.name),
 			tools: Some(vec![AssistantToolsRetrieval::default().into()]),
+
 			..Default::default()
 		})
 		.await?;

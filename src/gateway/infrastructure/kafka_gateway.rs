@@ -21,7 +21,7 @@ impl KafkaGateway<KafkaConsumer, EventHandlerLive<KafkaPublisher>> {
 		}
 	}
 
-	pub async fn start(&self) {
+	pub async fn start(&self, file_path: &str) {
 		loop {
 			let (event, message) = self
 				.consumer
@@ -30,7 +30,7 @@ impl KafkaGateway<KafkaConsumer, EventHandlerLive<KafkaPublisher>> {
 				.expect("Issue retrieving message");
 
 			self.event_handler
-				.handle_event(&event)
+				.handle_event(&event, file_path)
 				.await
 				.expect("Issue handling event");
 

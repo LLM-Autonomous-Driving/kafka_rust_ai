@@ -7,6 +7,7 @@ pub enum EventTopics {
 	Default,
 	HealthTest,
 	External,
+	CarSensorData,
 	CameraImageRawData,
 	LidarRangeImageRawData,
 	LidarPointCloudRawData,

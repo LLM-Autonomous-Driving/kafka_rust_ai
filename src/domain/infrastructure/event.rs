@@ -45,6 +45,11 @@ impl Event {
 				topic: EventTopics::LidarPointCloudRawData,
 				data: EventData::LidarPointCloudRawData(data),
 			},
+			EventData::CarSensorData(data) => Event {
+				channel: Channel::CarSensorData,
+				topic: EventTopics::CarSensorData,
+				data: EventData::CarSensorData(data),
+			},
 		}
 	}
 

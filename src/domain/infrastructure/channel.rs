@@ -9,6 +9,7 @@ pub(crate) enum Channel {
 	HealthTest,
 	FakeTest,
 	Dev(DevChannel),
+	CarSensorData,
 	CameraImageRawData,
 	LidarRangeImageRawData,
 	LidarPointCloudRawData,
